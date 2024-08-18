@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 
+import { User } from "@/database/entity/User";
 import { UserRepository } from "@/repositories/UsersRepository";
 import { UserService } from "@/services/UserService";
 import { validateUser } from "@/validation/user";
@@ -45,9 +46,18 @@ export class UserController {
         take,
         skip: (page - 1) * take,
       });
-      return res
-        .status(200)
-        .json({ users, total, page, last_page: Math.ceil(total / take) });
+
+      // Transform data to return array of users without the password field.
+      const userData = users.map((user: User) => {
+        return user.toResponse();
+      });
+
+      return res.status(200).json({
+        users: userData,
+        total,
+        page,
+        last_page: Math.ceil(total / take),
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: "Error fetching users" });
@@ -92,6 +102,7 @@ export class UserController {
       }
 
       const user = await userService.create(req.body);
+
       return res.status(201).json(user);
     } catch (error) {
       console.log(error);
