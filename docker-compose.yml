@@ -1,0 +1,29 @@
+version: '3'
+
+networks:
+  starter-app:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    environment:
+      NODE_ENV: development
+      DB_URI: '${DB_URI}' # Replace with your remote MongoDB URI
+      ACCESS_KEY_SECRET: '${ACCESS_KEY_SECRET}'
+      APP_BASE_URL: '${APP_BASE_URL}'
+      REDIRECT_DOMAIN: '${REDIRECT_DOMAIN}'
+      TOKEN_EXPIRES_IN: '${TOKEN_EXPIRES_IN}'
+      REFRESH_TOKEN_EXPIRES_IN: '${REFRESH_TOKEN_EXPIRES_IN}'
+      OTP_TOKEN_EXPIRES_IN: '${OTP_TOKEN_EXPIRES_IN}'
+      GMAIL_APP_PASSWORD: '${GMAIL_APP_PASSWORD}'
+      GMAIL_APP_USERNAME: '${GMAIL_APP_USERNAME}'
+      SESSION_SECRET: '${SESSION_SECRET}'
+    command: yarn dev
+    ports:
+      - '8000:8000'
+    networks:
+      - starter-app

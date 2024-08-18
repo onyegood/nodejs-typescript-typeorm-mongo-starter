@@ -1,0 +1,45 @@
+{
+  "name": "starter",
+  "version": "0.0.1",
+  "description": "Awesome project developed with TypeORM.",
+  "type": "commonjs",
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^16.11.10",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "4.5.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongodb": "^5.2.0",
+    "nodemon": "^3.1.4",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "0.3.17"
+  },
+  "scripts": {
+    "populate": "ts-node commands/populate.ts",
+    "start": "node dist/src/index.js",
+    "dev": "nodemon --watch src --exec 'ts-node' -r tsconfig-paths/register src/index.ts",
+    "prod": "node -r ts-node/register/transpile-only -r tsconfig-paths/register build/src/index.js",
+    "typeorm": "typeorm-ts-node-commonjs -d src/database/data-source.ts",
+    "migration:show": "yarn typeorm migration:show",
+    "migration:create": "node scripts/migration-create.js",
+    "migration:run": "yarn typeorm migration:run",
+    "migration:revert": "yarn typeorm migration:revert",
+    "test": "yarn test:unit",
+    "test:unit": "jest",
+    "lint": "eslint --ignore-path .gitignore . --ext .js,.ts",
+    "lint:fix": "yarn lint -- --fix",
+    "build": "yarn build:clean && yarn build:tsc",
+    "build:clean": "rimraf dist; exit 0",
+    "build:tsc": "tsc -p tsconfig.prod.json",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose --env-file .env up -d",
+    "docker:down": "docker compose down"
+  }
+}
