@@ -1,3 +1,4 @@
+import { IsBoolean, IsEmail, IsOptional, IsString } from "class-validator";
 import {
   Column,
   CreateDateColumn,
@@ -15,33 +16,43 @@ export class User {
 
   @Column()
   @Index({ unique: true })
+  @IsEmail()
   email: string;
 
   @Column()
+  @IsString()
   first_name: string;
 
   @Column()
+  @IsString()
   last_name: string;
 
   @Column()
+  @IsString()
   gender: string;
 
-  @Column({ nullable: true, default: 1 })
+  @Column({ nullable: true })
+  @IsOptional()
   organisationId: string;
 
   @Column()
+  @IsString()
   password: string;
 
   @Column()
+  @IsString()
   phone: string;
 
   @Column()
-  role: number;
+  @IsString()
+  role: string;
 
   @Column({ default: false })
+  @IsBoolean()
   verified: boolean;
 
-  @Column({ default: true, nullable: true })
+  @Column({ default: false })
+  @IsBoolean()
   active: boolean;
 
   @CreateDateColumn()
