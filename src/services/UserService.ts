@@ -1,6 +1,7 @@
-import { User } from '@/database/entity/User';
-import { UserRepository } from '@/repositories/UsersRepository';
-import { ObjectId } from 'mongodb';
+import { ObjectId } from "mongodb";
+
+import { User } from "@/database/entity/User";
+import { UserRepository } from "@/repositories/UsersRepository";
 
 export class UserService {
   public async getAllUsers(options: any): Promise<User[]> {

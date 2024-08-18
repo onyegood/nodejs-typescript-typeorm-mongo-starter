@@ -5,4 +5,4 @@ export interface IUser {
   gender: string;
 }
 
-export type IUpdateUser = Omit<IUser, 'id'>;
+export type IUpdateUser = Omit<IUser, "id">;

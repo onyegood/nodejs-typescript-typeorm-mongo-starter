@@ -1,19 +1,25 @@
-import { UserRepository } from '../src/repositories/UsersRepository';
-import { AppDataSource } from '../src/data-source';
-import { faker } from '@faker-js/faker';
+// import { UserRepository } from '../src/repositories/UsersRepository';
+// import { AppDataSource } from '../src/database/data-source';
+// import { faker } from '@faker-js/faker';
 
-// const userRepository = AppDataSource.getMongoRepository(User);
+// AppDataSource.initialize()
+//   .then(async () => {
+//     for (let i = 0; i < 10; i++) {
+//       await UserRepository.save({
+//         first_name: faker.person.firstName(),
+//         last_name: faker.person.fullName(),
+//         gender: faker.person.gender(),
+//         organisationId: faker.database.mongodbObjectId(),
+//         password: faker.lorem.word(6),
+//         phone: faker.phone,
+//         role: 'user',
+//         verified: false,
+//         active: false,
+//         createdAt: faker.date.anytime(),
+//         updatedAt: faker.date.anytime(),
+//       });
+//     }
 
-AppDataSource.initialize()
-  .then(async () => {
-    for (let i = 0; i < 10; i++) {
-      await UserRepository.save({
-        firstName: faker.person.firstName(),
-        lastName: faker.person.fullName(),
-        gender: faker.person.gender(),
-      });
-    }
-
-    process.exit();
-  })
-  .catch((err) => console.error(err));
+//     process.exit();
+//   })
+//   .catch((err) => console.error(err));
