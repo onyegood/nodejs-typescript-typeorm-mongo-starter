@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 
+import { UserType } from "@/constants/Roles";
 import { User } from "@/database/entity/User";
+import { Mailer } from "@/mailler";
 import { UserRepository } from "@/repositories/UsersRepository";
+import { OtpService } from "@/services/OtpService";
 import { UserService } from "@/services/UserService";
+import { Generate } from "@/utils/Generate";
 import { validateUser } from "@/validation/user";
 
 const userService = new UserService();
+const otpService = new OtpService();
 
 export class UserController {
   public async getAllUsers(req: Request, res: Response): Promise<Response> {
@@ -59,7 +64,7 @@ export class UserController {
         last_page: Math.ceil(total / take),
       });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).json({ error: "Error fetching users" });
     }
   }
@@ -73,7 +78,7 @@ export class UserController {
         ? res.status(200).json(user)
         : res.status(404).json({ message: "User not found" });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).json({ error: "Error fetching user" });
     }
   }
@@ -87,7 +92,7 @@ export class UserController {
         ? res.status(200).json(user)
         : res.status(404).json({ message: "User not found" });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).json({ error: "Error fetching current user" });
     }
   }
@@ -103,9 +108,41 @@ export class UserController {
 
       const user = await userService.create(req.body);
 
+      // Send otp code to the customer email
+      const code = Generate.randomNumber(5);
+
+      const userId = String(user["id"]);
+
+      // Generate token
+      const token = Generate.generateToken(
+        userId,
+        String(UserType.PARENT),
+        user.email,
+        process.env.OTP_TOKEN_EXPIRES_IN,
+      );
+
+      // // Save otp code in the db
+      const otpData = {
+        email: user.email,
+        code,
+        token,
+      };
+
+      await otpService.create(otpData);
+
+      // Send otp to user email
+      const payload = {
+        subject: "Welcome to Efiko Kids",
+        to: [user.email],
+        html: `Kindly use this code <p><b>${code}</b></p> to verify your account.`,
+      };
+
+      Mailer.gmailSender(payload);
+      // Send otp to user email
+
       return res.status(201).json(user);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).json({ error: "Error creating user" });
     }
   }
@@ -119,7 +156,7 @@ export class UserController {
         ? res.status(200).json(user)
         : res.status(404).json({ message: "User not found" });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).json({ error: "Error updating user" });
     }
   }
@@ -133,7 +170,7 @@ export class UserController {
         ? res.status(200).json({ message: "Deleted" })
         : res.status(404).json({ message: "User not found" });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return res.status(500).json({ error: "Error deleting user" });
     }
   }

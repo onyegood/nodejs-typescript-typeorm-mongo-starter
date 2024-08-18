@@ -3,6 +3,7 @@ import "reflect-metadata";
 import * as dotenv from "dotenv";
 import { DataSource } from "typeorm";
 
+import { Otp } from "./entity/OTP";
 import { User } from "./entity/User";
 
 dotenv.config();
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
   useUnifiedTopology: true,
   logging: ["query"],
   synchronize: true,
-  entities: [User],
+  entities: [User, Otp],
   migrations: ["./migration/*.ts"],
   subscribers: [],
 });
