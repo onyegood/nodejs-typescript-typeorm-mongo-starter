@@ -1,89 +1,21 @@
 // import { validate } from "class-validator";
 import { compare } from "bcryptjs";
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 
 import { UserType } from "@/constants/Roles";
+import { STATUS_CODE } from "@/constants/StatusCode";
+// import { Mailer } from "@/mailler";
 import { AuthService } from "@/services/AuthService";
+import { OtpService } from "@/services/OtpService";
 import { Generate } from "@/utils/Generate";
+import { validateEmail } from "@/validation/user";
 // import jwt from "jsonwebtoken";
 
-// import { Generate } from "@/utils/Generate";
-// import { UserType } from "@/constants/Roles";
-
 const authService = new AuthService();
+const otpService = new OtpService();
 
 export class AuthController {
-  // async register(req: Request, res: Response): Promise<Response> {
-  //   const userData = req.body;
-
-  //   // Validate data
-  //   const dto = new RegisterAuthDTO();
-  //   Object.assign(dto, userData);
-
-  //   const errors = await validate(dto);
-  //   if (errors.length > 0) {
-  //     return ResponseUtl.sendError(
-  //       res,
-  //       FEEDBACK.INVALID_DATA,
-  //       STATUS_CODE.UNPROCESSABLE_ENTITY,
-  //       errors,
-  //     );
-  //   }
-  //   // Validate data
-
-  //   const repo = AppDataSource.getRepository(User);
-  //   const user = repo.create(userData);
-
-  //   // Save user into the db
-  //   await repo.save(user);
-
-  //   // Delete the password field before returning the user object.
-  //   delete user["password"];
-
-  //   // Send otp code to the customer email
-  //   const code = Generate.randomNumber(5);
-
-  //   const userId = user["id"];
-
-  //   // Generate token
-  //   const token = Generate.generateToken(
-  //     userId,
-  //     UserType.PARENT,
-  //     userData.email,
-  //     process.env.OTP_TOKEN_EXPIRES_IN,
-  //   );
-
-  //   // // Save otp code in the db
-  //   const otpRepo = AppDataSource.getRepository(Otp);
-  //   const otpData = {
-  //     email: userData.email,
-  //     code,
-  //     token,
-  //   };
-  //   const otp = otpRepo.create(otpData);
-
-  //   // Save otp into the db
-  //   await otpRepo.save(otp);
-
-  //   // Send otp to user email
-  //   const payload = {
-  //     subject: "Welcome to Efiko Kids",
-  //     to: [userData.email],
-  //     html: `Kindly use this code <p><b>${code}</b></p> to verify your account.`,
-  //   };
-
-  //   Mailer.gmailSender(payload);
-  //   // Send otp to user email
-
-  //   return ResponseUtl.sendResponse(
-  //     res,
-  //     user,
-  //     FEEDBACK.CREATED,
-  //     null,
-  //     STATUS_CODE.CONTENT_CREATED,
-  //   );
-  // }
-
   async login(req: Request, res: Response): Promise<Response> {
     const { email, password } = req.body;
 
@@ -91,14 +23,14 @@ export class AuthController {
 
     if (!user) {
       return res
-        .status(400)
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: "User not found" });
     }
 
     const passwordMatches = await compare(password, user.password);
 
     if (!passwordMatches) {
-      return res.status(400).json({
+      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "User name or password is incorrect",
       });
@@ -135,7 +67,56 @@ export class AuthController {
       refreshToken,
     };
 
-    return res.status(200).json(payload);
+    return res.status(STATUS_CODE.SUCCESS).json(payload);
+  }
+
+  async sendOTP(req: Request, res: Response): Promise<Response> {
+    const { email } = req.body;
+
+    // Validate the request
+    await Promise.all(validateEmail.map(validation => validation.run(req)));
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ errors: errors.array() });
+    }
+
+    // Validate data
+    const user = await authService.sendOTP(email);
+
+    if (!user) {
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Generate token
+    const token = Generate.generateToken(
+      String(user.id),
+      String(UserType.PARENT),
+      email,
+      process.env.OTP_TOKEN_EXPIRES_IN,
+    );
+
+    const code = Generate.randomNumber(5);
+
+    // Create otp and save it to the db
+    otpService.create({ email, code, token });
+
+    // Send otp to user email
+    // const payload = {
+    //   subject: "Welcome to Efiko Kids",
+    //   to: [email],
+    //   html: `Kindly use this code <p><b>${code}</b></p> to verify your account.`,
+    // };
+
+    // Send otp to user email
+    // Mailer.gmailSender(payload);
+
+    return res
+      .status(STATUS_CODE.SUCCESS)
+      .json({ success: true, message: "Otp sent" });
   }
 
   /*
@@ -309,88 +290,6 @@ export class AuthController {
     );
   }
 
-  async sendOTP(req: Request, res: Response): Promise<Response> {
-    const userData = req.body;
-
-    // Validate data
-    const dto = new VerifyAccountEmailDTO();
-    Object.assign(dto, userData);
-
-    const errors = await validate(dto);
-    if (errors.length > 0) {
-      return ResponseUtl.sendError(
-        res,
-        FEEDBACK.INVALID_DATA,
-        STATUS_CODE.UNPROCESSABLE_ENTITY,
-        errors,
-      );
-    }
-    // Validate data
-
-    const repo = AppDataSource.getRepository(User);
-    const user = await repo.findOneBy({ email: userData.email });
-
-    if (!user) {
-      return ResponseUtl.sendError(
-        res,
-        FEEDBACK.INVALID_DATA,
-        STATUS_CODE.UNAUTHORIZED,
-        errors,
-      );
-    }
-
-    // Generate token
-    const token = Generate.generateToken(
-      user.id,
-      UserType.PARENT,
-      userData.email,
-      process.env.OTP_TOKEN_EXPIRES_IN,
-    );
-
-    const code = Generate.randomNumber(5);
-
-    const otpRepo = AppDataSource.getRepository(Otp);
-
-    // Save otp code in the db
-    const isExist = await otpRepo.findOneBy({ email: userData.email });
-    const otpData = {
-      email: userData.email,
-      code,
-      token,
-    };
-
-    if (isExist) {
-      await otpRepo
-        .createQueryBuilder()
-        .update(Otp)
-        .set({ code, token })
-        .where({ email: userData.email })
-        .execute();
-    } else {
-      const otp = otpRepo.create(otpData);
-      // Save otp into the db
-      await otpRepo.save(otp);
-    }
-
-    // Send otp to user email
-    const payload = {
-      subject: "Welcome to Efiko Kids",
-      to: [userData.email],
-      html: `Kindly use this code <p><b>${code}</b></p> to verify your account.`,
-    };
-
-    Mailer.gmailSender(payload);
-    // Send otp to user email
-
-    return ResponseUtl.sendResponse(
-      res,
-      null,
-      FEEDBACK.FETCHED,
-      null,
-      STATUS_CODE.SUCCESS,
-    );
-  }
-
   async verifyAccount(req: Request, res: Response): Promise<Response> {
     try {
       const userData = req.body;
@@ -557,10 +456,10 @@ export class AuthController {
 
   async isValidToken(req: Request, res: Response): Promise<Response> {
     const token = req.header("x-auth-token");
-    if (!token) return res.status(400).json(false);
+    if (!token) return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(false);
 
     const verified = jwt.verify(token, process.env.ACCESS_KEY_SECRET!);
-    if (!verified) return res.status(400).json(false);
+    if (!verified) return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(false);
 
     const id = verified["id"];
     const userId = req["user"]["id"];

@@ -1,5 +1,3 @@
-import { ObjectId } from "typeorm";
-
 import { Otp } from "@/database/entity/OTP";
 import { OtpRepository } from "@/repositories/OTPRepository";
 
@@ -9,23 +7,21 @@ export class OtpService {
     code: string;
     token: string;
   }): Promise<Otp | null> {
+    const isEmailExisting = await OtpRepository.findOneByOrFail({
+      email: otp.email,
+    });
+
+    // If otp with that email address exists delete the record before creating new one.
+    if (isEmailExisting) {
+      await this.delete(otp.email);
+    }
+
     const payload = OtpRepository.create(otp);
     return await OtpRepository.save(payload);
-    // const isEmailExisting = await OtpRepository.findOneByOrFail({
-    //   email: new ObjectId(otp.email),
-    // });
-
-    // if (!isEmailExisting) {
-    //   const payload = OtpRepository.create(otp);
-    //   return await OtpRepository.save(payload);
-    // }
-    // Object.assign(isEmailExisting, otp);
-    // return await OtpRepository.save(isEmailExisting);
   }
 
-  public async delete(id: string): Promise<boolean> {
-    const _id = new ObjectId(id);
-    const result = await OtpRepository.delete(_id);
+  public async delete(email: string): Promise<boolean> {
+    const result = await OtpRepository.delete({ email });
     return result.affected ? true : false;
   }
 }

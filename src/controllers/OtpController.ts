@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 
+import { STATUS_CODE } from "@/constants/StatusCode";
 import { OtpService } from "@/services/OtpService";
 
 const otpService = new OtpService();
@@ -8,9 +9,11 @@ export class OtpController {
   public async createOtp(req: Request, res: Response): Promise<Response> {
     try {
       const otp = await otpService.create(req.body);
-      return res.status(201).json(otp);
+      return res.status(STATUS_CODE.CONTENT_CREATED).json(otp);
     } catch (error) {
-      return res.status(500).json({ error: "Error creating Otp" });
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ error: "Error creating Otp" });
     }
   }
 
@@ -20,10 +23,12 @@ export class OtpController {
 
       const deleted = await otpService.delete(id);
       return deleted
-        ? res.status(200).json({ message: "Deleted" })
-        : res.status(404).json({ message: "OTP not found" });
+        ? res.status(STATUS_CODE.SUCCESS).json({ message: "Deleted" })
+        : res.status(STATUS_CODE.NOT_FOUND).json({ message: "OTP not found" });
     } catch (error) {
-      return res.status(500).json({ error: "Error deleting Otp" });
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ error: "Error deleting Otp" });
     }
   }
 }

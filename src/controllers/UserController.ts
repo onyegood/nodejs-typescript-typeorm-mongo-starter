@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 
 import { UserType } from "@/constants/Roles";
+import { STATUS_CODE } from "@/constants/StatusCode";
 import { User } from "@/database/entity/User";
 import { Mailer } from "@/mailler";
 import { UserRepository } from "@/repositories/UsersRepository";
@@ -57,7 +58,7 @@ export class UserController {
         return user.toResponse();
       });
 
-      return res.status(200).json({
+      return res.status(STATUS_CODE.SUCCESS).json({
         users: userData,
         total,
         page,
@@ -65,7 +66,9 @@ export class UserController {
       });
     } catch (error) {
       // console.log(error);
-      return res.status(500).json({ error: "Error fetching users" });
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ error: "Error fetching users" });
     }
   }
 
@@ -75,11 +78,13 @@ export class UserController {
       const user = await userService.getUserById(id);
 
       return user
-        ? res.status(200).json(user)
-        : res.status(404).json({ message: "User not found" });
+        ? res.status(STATUS_CODE.SUCCESS).json(user)
+        : res.status(STATUS_CODE.NOT_FOUND).json({ message: "User not found" });
     } catch (error) {
       // console.log(error);
-      return res.status(500).json({ error: "Error fetching user" });
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ error: "Error fetching user" });
     }
   }
 
@@ -89,11 +94,13 @@ export class UserController {
 
       const user = await userService.getUserById(id);
       return user
-        ? res.status(200).json(user)
-        : res.status(404).json({ message: "User not found" });
+        ? res.status(STATUS_CODE.SUCCESS).json(user)
+        : res.status(STATUS_CODE.NOT_FOUND).json({ message: "User not found" });
     } catch (error) {
       // console.log(error);
-      return res.status(500).json({ error: "Error fetching current user" });
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ error: "Error fetching current user" });
     }
   }
 
@@ -103,7 +110,9 @@ export class UserController {
       await Promise.all(validateUser.map(validation => validation.run(req)));
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res
+          .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+          .json({ errors: errors.array() });
       }
 
       const user = await userService.create(req.body);
@@ -140,10 +149,12 @@ export class UserController {
       Mailer.gmailSender(payload);
       // Send otp to user email
 
-      return res.status(201).json(user);
+      return res.status(STATUS_CODE.CONTENT_CREATED).json(user);
     } catch (error) {
       // console.log(error);
-      return res.status(500).json({ error: "Error creating user" });
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ error: "Error creating user" });
     }
   }
 
@@ -153,11 +164,13 @@ export class UserController {
 
       const user = await userService.update(id, req.body);
       return user
-        ? res.status(200).json(user)
-        : res.status(404).json({ message: "User not found" });
+        ? res.status(STATUS_CODE.SUCCESS).json(user)
+        : res.status(STATUS_CODE.NOT_FOUND).json({ message: "User not found" });
     } catch (error) {
       // console.log(error);
-      return res.status(500).json({ error: "Error updating user" });
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ error: "Error updating user" });
     }
   }
 
@@ -167,11 +180,13 @@ export class UserController {
 
       const deleted = await userService.delete(id);
       return deleted
-        ? res.status(200).json({ message: "Deleted" })
-        : res.status(404).json({ message: "User not found" });
+        ? res.status(STATUS_CODE.SUCCESS).json({ message: "Deleted" })
+        : res.status(STATUS_CODE.NOT_FOUND).json({ message: "User not found" });
     } catch (error) {
       // console.log(error);
-      return res.status(500).json({ error: "Error deleting user" });
+      return res
+        .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
+        .json({ error: "Error deleting user" });
     }
   }
 }

@@ -30,3 +30,7 @@ export const validateUser = [
   body("organisationId").isString().optional(),
   body("role").isString().optional(),
 ];
+
+export const validateEmail = [
+  body("email").isEmail().withMessage("Email must be a valid email."),
+];
