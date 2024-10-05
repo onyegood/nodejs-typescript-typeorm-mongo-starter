@@ -9,7 +9,7 @@ export class CreateUserCollection1723995126638 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const userCollection =
-      queryRunner.connection.mongoManager.getMongoRepository("Todo");
+      queryRunner.connection.mongoManager.getMongoRepository("User");
     await userCollection.dropCollectionIndex("email");
   }
 }

@@ -3,7 +3,7 @@ import "reflect-metadata";
 import * as dotenv from "dotenv";
 import { DataSource } from "typeorm";
 
-import { Otp } from "./entity/OTP";
+import { Otp } from "./entity/Otp";
 import { User } from "./entity/User";
 
 dotenv.config();

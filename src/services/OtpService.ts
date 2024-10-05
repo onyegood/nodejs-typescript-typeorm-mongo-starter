@@ -1,13 +1,19 @@
-import { Otp } from "@/database/entity/OTP";
+import { Otp } from "@/database/entity/Otp";
 import { OtpRepository } from "@/repositories/OTPRepository";
 
 export class OtpService {
+  public async findOtp(code: string): Promise<Otp | null> {
+    const otp = OtpRepository.findOneByOrFail({ code });
+    if (!otp) return null;
+
+    return otp;
+  }
   public async create(otp: {
     email: string;
     code: string;
     token: string;
   }): Promise<Otp | null> {
-    const isEmailExisting = await OtpRepository.findOneByOrFail({
+    const isEmailExisting = await OtpRepository.findOneBy({
       email: otp.email,
     });
 
@@ -17,6 +23,7 @@ export class OtpService {
     }
 
     const payload = OtpRepository.create(otp);
+
     return await OtpRepository.save(payload);
   }
 

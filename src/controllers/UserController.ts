@@ -64,11 +64,10 @@ export class UserController {
         page,
         last_page: Math.ceil(total / take),
       });
-    } catch (error) {
-      // console.log(error);
+    } catch (error: any) {
       return res
         .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-        .json({ error: "Error fetching users" });
+        .json({ error: error.message });
     }
   }
 
@@ -80,11 +79,10 @@ export class UserController {
       return user
         ? res.status(STATUS_CODE.SUCCESS).json(user)
         : res.status(STATUS_CODE.NOT_FOUND).json({ message: "User not found" });
-    } catch (error) {
-      // console.log(error);
+    } catch (error: any) {
       return res
         .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-        .json({ error: "Error fetching user" });
+        .json({ error: error.message });
     }
   }
 
@@ -96,11 +94,10 @@ export class UserController {
       return user
         ? res.status(STATUS_CODE.SUCCESS).json(user)
         : res.status(STATUS_CODE.NOT_FOUND).json({ message: "User not found" });
-    } catch (error) {
-      // console.log(error);
+    } catch (error: any) {
       return res
         .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-        .json({ error: "Error fetching current user" });
+        .json({ error: error.message });
     }
   }
 
@@ -150,11 +147,10 @@ export class UserController {
       // Send otp to user email
 
       return res.status(STATUS_CODE.CONTENT_CREATED).json(user);
-    } catch (error) {
-      // console.log(error);
+    } catch (error: any) {
       return res
         .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-        .json({ error: "Error creating user" });
+        .json({ error: error.message });
     }
   }
 
@@ -166,11 +162,10 @@ export class UserController {
       return user
         ? res.status(STATUS_CODE.SUCCESS).json(user)
         : res.status(STATUS_CODE.NOT_FOUND).json({ message: "User not found" });
-    } catch (error) {
-      // console.log(error);
+    } catch (error: any) {
       return res
         .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-        .json({ error: "Error updating user" });
+        .json({ error: error.message });
     }
   }
 
@@ -182,11 +177,10 @@ export class UserController {
       return deleted
         ? res.status(STATUS_CODE.SUCCESS).json({ message: "Deleted" })
         : res.status(STATUS_CODE.NOT_FOUND).json({ message: "User not found" });
-    } catch (error) {
-      // console.log(error);
+    } catch (error: any) {
       return res
         .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
-        .json({ error: "Error deleting user" });
+        .json({ error: error.message });
     }
   }
 }

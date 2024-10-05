@@ -29,7 +29,7 @@ export class Mailer {
       { from: "noreply@efikokids.com", ...mailOption },
       function (error: any, info: any) {
         if (error) {
-          console.log(error);
+          console.error(error);
         } else {
           console.log("Email sent", info.response);
         }

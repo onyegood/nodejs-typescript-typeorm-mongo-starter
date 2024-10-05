@@ -1,0 +1,18 @@
+export enum FEEDBACK {
+  FETCHED = "Fetched successfully.",
+  INVALID_ROUTE = "Invalid route",
+  SOMETHING_WENT_WRONG = "Something went wrong",
+  ITEM_NOT_FOUND = "Item/page you are looking for does not exist",
+  INVALID_FILE_TYPE = "invalid file type",
+  INVALID_DATA = "Invalid data",
+  CREATED = "Create successfully",
+  UPDATED = "Updated successfully",
+  DELETE = "Deleted successfully",
+  AUTHORIZATION_ERROR = "Token not provided",
+  UNAUTHORIZED = "Invalid token",
+  NOT_ADMIN_USER = "User is not admin",
+  INVALID_IMAGE = "Invalid image / image read error",
+  ACCOUNT_ALREADY_VERIFIED = "This account is already verified.",
+  SUBSCRIPTION_EXPIRED = "You don't have active subscription. Please subscribe now to start enjoying your learning.",
+  PASSWORD_REQIRED = "Password field can't be empty.",
+}
